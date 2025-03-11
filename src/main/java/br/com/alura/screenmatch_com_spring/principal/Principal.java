@@ -7,8 +7,10 @@ import br.com.alura.screenmatch_com_spring.service.ConsumoAPI;
 import br.com.alura.screenmatch_com_spring.service.ConverteDados;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -42,6 +44,20 @@ public class Principal {
 //            }
 //        }
 
+        //                       (parametro) -> expressao
         temporadas.forEach(t -> t.epsodios().forEach(e -> System.out.println(e.titulo())));
+
+        List<DadosEpsodio> dadosEpsodios = temporadas.stream()
+                .flatMap(t -> t.epsodios().stream())
+                .collect(Collectors.toList());
+                //.toList(); cria uma coleção imutalvel, não podendo acrescentar nada
+
+        System.out.println("\n ** TOP 5 EPSÓDIOS **");
+        dadosEpsodios.stream()
+                .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(DadosEpsodio::avaliacao).reversed())
+                .limit(5)
+                .forEach(System.out::println);
+
     }
 }
