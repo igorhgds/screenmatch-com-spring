@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -30,12 +31,12 @@ public class Principal {
         var nomeSerie = leitura.nextLine();
         var json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + API_KEY);
 
-        //Exibindo os dados da série
+            //Exibindo os dados da série
         DadosSerie dados = conversor.obterDados(json, DadosSerie.class);
         System.out.println(dados + "\n");
 
 
-        // Exibindo os dados das Temporadas
+            // Exibindo os dados das Temporadas
         List<DadosTemporada> temporadas = new ArrayList<>();
 		for(int i = 1; i <= dados.totalTemporadas(); i++){
 			json = consumo.obterDados(ENDERECO + nomeSerie.replace(" ", "+") + "&season=" + i + API_KEY);
@@ -54,7 +55,7 @@ public class Principal {
 //        }
 
 
-        // Listando os dados dos Episódios sem tratamento
+            // Listando os dados dos Episódios sem tratamento
 //        List<DadosEpisodio> dadosEpisodios = temporadas.stream()
 //                .flatMap(t -> t.episodios().stream())
 //                .collect(Collectors.toList());
@@ -62,7 +63,7 @@ public class Principal {
 //        dadosEpisodios.forEach(System.out::println);
 
 
-        // Declarando a lista de Episodios informando as temporadas
+            // Declarando a lista de Episodios informando as temporadas
         List<Episodio> episodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
                         .map(d -> new Episodio(t.numero(), d)))
@@ -71,7 +72,7 @@ public class Principal {
         System.out.println();
 
 
-        // Realizando uma busca para encontrar a temporada do episódio com base em um trecho do titulo
+            // Realizando uma busca para encontrar a temporada do episódio com base em um trecho do titulo
         System.out.println("Digite um trecho do titulo do episódio");
         var trechoTitulo = leitura.nextLine();
         Optional<Episodio> episodioBuscado = episodios.stream()
@@ -93,7 +94,7 @@ public class Principal {
 //                .forEach(System.out::println);
 
 
-        //Declarando os top 10 episodios com base na avaliação
+            //Declarando os top 10 episodios com base na avaliação
         System.out.println("\n ** TOP 10 EPSÓDIOS **");
         episodios.stream()
                 .sorted(Comparator.comparing(Episodio::getAvaliacao).reversed())
@@ -101,20 +102,26 @@ public class Principal {
                 .forEach(System.out::println);
 
 
-        //Realizando uma busca dos episódios a partir de determinada data
-        System.out.println("A partir de que ano você deseja ver os episódios? ");
-        var ano = leitura.nextInt();
-        leitura.nextLine();
-        LocalDate dataBusca = LocalDate.of(ano, 1 , 1);
+            //Realizando uma busca dos episódios a partir de determinada data
+//        System.out.println("A partir de que ano você deseja ver os episódios? ");
+//        var ano = leitura.nextInt();
+//        leitura.nextLine();
+//        LocalDate dataBusca = LocalDate.of(ano, 1 , 1);
+//
+//        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//
+//        episodios.stream()
+//                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
+//                .forEach(e -> System.out.println(
+//                        " Temporada: " + e.getTemporada() +
+//                                ", Episodio: " + e.getTitulo() +
+//                                ", Data Lançamento: " + e.getDataLancamento().format(formatador)
+//                ));
 
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        episodios.stream()
-                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
-                .forEach(e -> System.out.println(
-                        " Temporada: " + e.getTemporada() +
-                                ", Episodio: " + e.getTitulo() +
-                                ", Data Lançamento: " + e.getDataLancamento().format(formatador)
-                ));
+            // Criando um mapa com dados por temporada
+        Map<Integer, Double> avaliacaoPorTemporada = episodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.groupingBy(Episodio::getTemporada, Collectors.averagingDouble(Episodio::getAvaliacao)));
+        System.out.println(avaliacaoPorTemporada);
     }
 }
