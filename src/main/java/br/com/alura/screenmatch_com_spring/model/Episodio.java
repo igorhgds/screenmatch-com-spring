@@ -10,7 +10,7 @@ public class Episodio {
     private Double avaliacao;
     private LocalDate dataLancamento;
 
-    public Episodio(Integer numeroTemporada, DadosEpsodio dadosEpsodio){
+    public Episodio(Integer numeroTemporada, DadosEpisodio dadosEpsodio){
         this.temporada = numeroTemporada;
         this.titulo = dadosEpsodio.titulo();
         this.numeroEpisodio = dadosEpsodio.numero();
